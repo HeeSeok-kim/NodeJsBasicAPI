@@ -4,8 +4,6 @@ require('dotenv').config();
 require('express-async-errors');
 const app = express();
 const PORT = process.env.PORT;
-const errorHandler = require('./customError.js');
-
 //DB연결
 connect();
 

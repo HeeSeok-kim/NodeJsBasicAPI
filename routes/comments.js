@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const comment = require("../schemas/comment");
-
+const customError = require("../util/errorController");
 
 const ERRORTYPE = {
     BadRequestError : 'BadRequestError',
@@ -12,10 +12,12 @@ const STATUS = {
     NotFound : 404
 }
 
+
 const COMMENT_ERROR = {...ERRORTYPE['BadRequestError'],...STATUS['BadRequestError'], message: '댓글 내용을 입력해주세요.' };
 const DEFAULT_ERROR = {...ERRORTYPE['BadRequestError'],...STATUS['BadRequestError'], message:"데이터 형식이 올바르지 않습니다."};
 const NODBSEARCH_ERROR = {...ERRORTYPE['NotFound'],...STATUS['NotFound'], message:"댓글 조회에 실패하였습니다."}
 const PASSWORD_ERROR = {...ERRORTYPE['BadRequestError'],...STATUS['BadRequestError'], message:"잘못된 비밀번호"};
+
 
 router.post("/:_postId",async (req,res,next) => {
     const postId = req.params;

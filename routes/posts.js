@@ -5,22 +5,65 @@ const post = require("../schemas/post");
 const DEFAULT_ERROR = {error:"BadRequestError",status:400, message:"데이터 형식이 올바르지 않습니다."};
 const PASSWORD_ERROR = {error:"BadRequestError",status:400, message:"잘못된 비밀번호"};
 const NODBSEARCH_ERROR = {error:"BadRequestError",status:404, message:"게시글 조회에 실패하였습니다."}
+router.get("/user",async (req,res,next)=> {
+    try {
+        //password, content 필드 제외 하고 날짜로 내림차순 정렬하기
+        const user = await User.find({});
+        let getUserData = [];
+        user.forEach((data) => {
+            getUserData.push({
+                userId:String(data['_id']),
+                name:data['name'],
+                ID:data['id'],
+                pw:data['pw']
+            })
+        })
+        res.status(200).json({result:getUserData})
+    }catch (error){
+        next({error: "BadRequestError", status:400, message: "회원 목록 조회 실패"})
+    }
+})
+
+router.get("/:userId",async (req,res,next) => {
+    //DB에서 찾고 데이터 보내주기
+    const userId = req.params;
+    if(!userId){
+        throw {error:"BadRequestError",status:400, message:"회원 상세 조회 실패"};
+    }
+    try {
+        const result = await User.findOne({_id : {$eq : userId['userId']}});
+        if(result === null) throw {error:"BadRequestError",status:400, message:"회원 상세 조회 실패"}
+        const detail = {
+            userId:String(result['_id']),
+            name:result['name'],
+            ID:result['id'],
+            pw:result['pw']
+        }
+        res.status(200).json({
+            message:{result:detail}
+        });
+    }catch (error){
+        next({error:"BadRequestError",status:400, message:"회원 상세 조회 실패"});
+    }
+});
+
+
 router.get("/",async (req,res,next) => {
     try {
         //password, content 필드 제외 하고 날짜로 내림차순 정렬하기
-        const postData = await post.find({},{password:0,content:0}).sort({createdAt:-1});
+        const postData = await post.find({});
         let getPostData = [];
         postData.forEach((data) => {
             getPostData.push({
-                postId:String(data['_id']),
-                user:data['user'],
-                title:data['title'],
-                createdAt:data['createdAt']
+                userId:String(data['_id']),
+                name:data['name'],
+                ID:data['id'],
+                pw:data['pw']
             })
         })
-        res.status(200).json({data:getPostData})
+        res.status(200).json({result:getPostData})
     }catch (error){
-        next(DEFAULT_ERROR)
+        next({DEFAULT_ERROR})
     }
 });
 
